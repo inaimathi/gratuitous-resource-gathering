@@ -1,3 +1,17 @@
+function makeIntervalPort(name, delay) {
+    D.import_port_flavour(name, {
+	dir: 'in',
+	outside_add: function () {
+	    var self = this;
+	    var interval = setInterval(function () { self.enter("ping!")}, delay);
+	}
+    })
+}
+
+makeIntervalPort('every-millisecond', 1);
+makeIntervalPort('every-half-second', 500);
+makeIntervalPort('every-second', 1000);
+
 D.import_port_flavour('dom-on-drag', {
     dir: 'in',
     outside_add: function() {
@@ -53,7 +67,7 @@ D.import_models({
 })
 
 document.addEventListener('DOMContentLoaded', function() {
-    xhr_get('/static/daim_go.dm', function(data) {
+    xhr_get('/static/grg.dm', function(data) {
 	var outerseed = D.make_some_space(data, D.get_templates());
 	OuterSpace = new D.Space(outerseed);
     });

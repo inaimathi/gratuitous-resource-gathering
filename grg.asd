@@ -7,5 +7,5 @@
   :license "Specify license here"
   :depends-on (#:house #:cl-who #:bordeaux-threads)
   :components ((:file "package")
-               (:file "daim-go")))
+               (:file "grg")))
 
