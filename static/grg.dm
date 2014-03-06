@@ -10,12 +10,18 @@ outer
 	$tick-increment 0
 	$balance 0
 
-	inc-balance { __ | add $balance | >$balance }
-	dec-balance { __ | subtract value __ from $balance | >$balance }
+	inc-balance 
+		{ __ | add $balance | >$balance }
+	dec-balance 
+		{ __ | subtract value __ from $balance | >$balance }
 
-	gt-balance {__ | ($building-cost $balance) | max | eq $balance }
-
+	can-afford
+		{ __ | ($building-cost $balance) | max | eq $balance }
+	
+	
 	@resource-click -> {__ | $click-increment } -> inc-balance -> @show
-	@building-click -> gt-balance -> { __ | then "Buying..." else "You can't afford it!" } -> { __ | tap }
+	@building-click -> can-afford -> { __ | then $building-cost else 0} -> dec-balance -> @show
+			   can-afford -> { __ | then 10 else 0 | add $tick-increment | >$tick-increment }
+			   can-afford -> { __ | then "Buying..." | tap }
 
-	@timer -> {__ | $tick-increment } -> dec-balance -> { __ | $balance } ->  @show
+	@timer -> {__ | $tick-increment } -> inc-balance -> { __ | $balance } ->  @show
