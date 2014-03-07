@@ -3,21 +3,22 @@ module Test where
 import Mouse
 import Time
 
--- port delta : Signal Int
+port gather : Signal Bool
+port build : Signal String
 
-port wood : Signal Bool
-port building : Signal String
+costIncrement = constant 50
+cost = foldp (+) 0 <| keepWhen canAfford 0 <| sampleOn build costIncrement
+nextCost = lift2 (+) cost costIncrement
 
-buildingCost = foldp (+) 0 <| keepWhen (lift2 (>) (constant 50) balance) 0 <| sampleOn building <| constant 50
+spent = foldp (+) 0 <| merges [ sampleOn build cost ]
 
-tickIncrement = foldp (+) 0 <| sampleOn buildingCost <| constant 0.01
-tick = sampleOn (every Time.millisecond) <| constant True
-
-spent = foldp (+) 0 <| merges [ sampleOn building buildingCost ]
-
-gathered = foldp (+) 0 <| merges [ sampleOn wood <| constant 1
-                                 , sampleOn tick tickIncrement ]
+gathered = foldp (+) 0 <| merges [ sampleOn gather <| constant 1, sampleOn tick tickIncrement ]
 
 balance = lift round <| lift2 (-) gathered spent
 
-main = lift (flow down) <| combine [ lift asText balance ]
+canAfford = lift2 (>) balance <| lift round nextCost
+
+tickIncrement = foldp (+) 0 <| sampleOn cost <| constant 0.01
+tick = sampleOn (every Time.millisecond) <| constant True
+
+main = lift (flow down) <| combine [ lift asText balance, lift asText canAfford, lift asText spent, lift asText gathered, lift asText nextCost ]
