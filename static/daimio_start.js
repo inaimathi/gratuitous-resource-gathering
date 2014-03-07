@@ -1,16 +1,10 @@
-function makeIntervalPort(name, delay) {
-    D.import_port_flavour(name, {
-	dir: 'in',
-	outside_add: function () {
-	    var self = this;
-	    var interval = setInterval(function () { self.enter("ping!")}, delay);
-	}
-    })
-}
-
-makeIntervalPort('every-millisecond', 1);
-makeIntervalPort('every-half-second', 500);
-makeIntervalPort('every-second', 1000);
+D.import_port_flavour('every', {
+    dir: 'in',
+    outside_add: function () {
+	var self = this;
+	var interval = setInterval(function () { self.enter("ping!")}, parseInt(this.settings.thing));
+    }
+})
 
 D.import_port_flavour('dom-on-drag', {
     dir: 'in',

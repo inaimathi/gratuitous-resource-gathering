@@ -8,7 +8,9 @@
 		  (:script :type "text/javascript" :src "/static/daimio_composite.js")
 		  (:script :type "text/javascript" :src "/static/daimio_start.js"))
 	   (:body 
-	    (:button :id "resource" "Resource")
+	    (:button :id "lumberjack" "Wood")
+	    (:button :id "quarry" "Stone")
+	    (:button :id "forage" "Food")
 	    (:div :id "display" :style "width: 200px; height: 50px; border: 1px dashed #000;")
 	    (:button :id "building" "Building")))))
 
