@@ -14,8 +14,6 @@
 	    (:div :id "display" :style "width: 200px; height: 50px; border: 1px dashed #000;")
 	    (:button :id "building" "Building")))))
 
-(define-closing-handler ())
-
 (define-json-handler (echo) (value)
   (publish! :the-game  value)
   :ok)
