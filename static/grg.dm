@@ -23,8 +23,12 @@ outer
 
 	can-afford
 		{ __ | ($building-cost $balance.wood) | max | eq $balance.wood }
-	
+
 	@wood-click -> {__ | * (:wood $click-increment) } -> inc-balance -> @show
+	@stone-click -> { __ | * (:stone $click-increment) } -> inc-balance -> @show
+	@food-click -> { __ | * (:food $click-increment) } -> inc-balance -> @show
+
+
 	@building-click -> can-afford -> { __ | then $building-cost else 0 | * (:wood __)} -> dec-balance -> @show
 			   can-afford -> { __ | then 10 else 0 | * (:wood __) } -> upgrade
 			   can-afford -> { __ | then "Buying..." | tap }
