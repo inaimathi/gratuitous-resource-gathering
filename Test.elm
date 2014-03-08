@@ -16,7 +16,7 @@ gathered = foldp (+) 0 <| merges [ sampleOn gather <| constant 1, sampleOn tick 
 
 balance = lift round <| lift2 (-) gathered spent
 
-canAfford = lift2 (>) balance <| lift round nextCost
+canAfford = lift2 (>=) balance <| lift round nextCost
 
 tickIncrement = foldp (+) 0 <| sampleOn cost <| constant 0.01
 tick = sampleOn (every Time.millisecond) <| constant True

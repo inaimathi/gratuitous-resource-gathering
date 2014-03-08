@@ -11,8 +11,10 @@
 	    (:button :id "lumberjack" "Wood")
 	    (:button :id "quarry" "Stone")
 	    (:button :id "forage" "Food")
-	    (:div :id "display" :style "width: 200px; height: 50px; border: 1px dashed #000;")
-	    (:button :id "building" "Building")))))
+	    (:div :id "balance-display" :style "width: 200px; height: 50px; border: 1px dashed #000;")
+	    (:button :class "building" "Lumber Yard")
+	    (:button :class "building" "Quarry")
+	    (:button :class "building" "Farm")))))
 
 (define-json-handler (echo) (value)
   (publish! :the-game  value)
