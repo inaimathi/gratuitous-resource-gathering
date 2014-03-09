@@ -6,17 +6,6 @@ D.import_port_flavour('every', {
     }
 })
 
-D.import_port_flavour('dom-on-drag', {
-    dir: 'in',
-    outside_add: function() {
-	var self = this
-	D.track_event('drag', this.settings.thing, 
-		      function(value) { 
-			  console.log (value) 
-		      })
-    }
-})
-
 D.import_port_flavour('xhr-send', {
     dir: 'out',
     outside_exit: function (ship) {

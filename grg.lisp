@@ -8,13 +8,16 @@
 		  (:script :type "text/javascript" :src "/static/daimio_composite.js")
 		  (:script :type "text/javascript" :src "/static/daimio_start.js"))
 	   (:body 
-	    (:button :id "lumberjack" "Wood")
-	    (:button :id "quarry" "Stone")
-	    (:button :id "forage" "Food")
-	    (:div :id "balance-display" :style "width: 200px; height: 50px; border: 1px dashed #000;")
-	    (:button :class "building" "Lumber Yard")
-	    (:button :class "building" "Quarry")
-	    (:button :class "building" "Farm")))))
+	    (:button :class "resource" :data-value "wood" "Wood")
+	    (:button :class "resource" :data-value "stone" "Stone")
+	    (:button :class "resource" :data-value "food" "Food")
+	    (:ul
+	     (:li "Balance: " (:span :id "balance-display"))
+	     (:li "Skills: " (:span :id "skills-display"))
+	     (:li "Income: " (:span :id "income-display")))
+	    (:button :class "building" :data-value "Lumber Yard" "Lumber Yard")
+	    (:button :class "building" :data-value "Quarry" "Quarry")
+	    (:button :class "building" :data-value "Farm" "Farm")))))
 
 (define-json-handler (echo) (value)
   (publish! :the-game  value)
