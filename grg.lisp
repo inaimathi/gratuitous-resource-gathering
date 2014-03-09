@@ -3,7 +3,7 @@
 (define-file-handler "static")
 
 (define-closing-handler (root) ()
-  (with-html-output-to-string (*standard-output* nil :prologue t)
+  (with-html-output-to-string (*standard-output* nil :prologue t :indent t)
     (:html (:head (:title "GRG - Gratuitous Resource Gathering")
 		  (:script :type "text/javascript" :src "/static/daimio_composite.js")
 		  (:script :type "text/javascript" :src "/static/daimio_start.js"))

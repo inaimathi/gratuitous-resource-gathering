@@ -4,18 +4,25 @@ outer
 
 	@timer every 500
 
-	$buildings { "Lumber Yard" : { "cost": { "wood": 50, "stone": 10 }, "upgrade": { "wood": 1 }, "requires": [] }
-						 , "Quarry"      : { "cost": { "wood": 20, "stone": 50 }, "upgrade": { "stone": 1 }, "requires": [] }
-						 , "Farm"        : { "cost": { "wood": 30, "stone": 30 }, "upgrade": { "food": 1 }, "requires": []}
-						 , "Mine" 			 : { "cost": { "wood": 50, "stone": 20, "food": 30}, "upgrade": { "ore": 1}, "requires": ["Lumber Yard", "Quarry", "Farm"]}
-						 , "Gold Mine"   : { "cost": { "wood": 50, "stone": 20, "food": 30}, "upgrade": { "gold": 1}, "requires": ["Mine"]}
-						 , "Blacksmith"  : { "cost": { "wood": 60, "stone": 50 }, "upgrade": {}, "requires": ["Mine"]}}
+	$buildings { "Clay Pit": { "cost": { "wood": 30 }, "upgrade": { "clay": 1 }, "requires": [] }
+						 , "Lumber Yard" : { "cost": { "wood": 50, "stone": 10 }, "upgrade": { "wood": 1 }, "requires": [] }
+						 , "Quarry"      : { "cost": { "wood": 20, "stone": 50 }, "upgrade": { "stone": 1 }, "requires": ["Lumber Yard"] }
+						 , "Farm"        : { "cost": { "wood": 30, "stone": 30 }, "upgrade": { "food": 1 }, "requires": [] }
+						 , "Mine" 			 : { "cost": { "wood": 50, "stone": 20, "food": 30}, "upgrade": { "ore": 1, "salt": 1 }, "requires": ["Lumber Yard", "Quarry", "Farm"] }
+						 , "Gold Mine"   : { "cost": { "wood": 50, "stone": 20, "food": 30}, "upgrade": { "gold": 1}, "requires": ["Mine"] }
+						 , "Blacksmith"  : { "cost": { "wood": 60, "stone": 50 }, "upgrade": {}, "requires": ["Mine"] }}
 
-	$building { "cost": { "wood": 50, "stone": 10 }, "upgrade": { "wood": 10 } }
+	$resources { "wood" : [], "stone" : [],  "food" : [], "clay": []
+						 , "ore": ["Mine"], "salt": ["Mine"], "gold": ["Gold Mine"]
+						 , "money": ["Printing Press", "Mint"], "reputation": ["Printing Press"]
+						 , "trade": ["Shipyard"] 
+						 , "knowledge": ["Philosophy"] }
+
 	$click-increment { "wood": 1, "stone": 1, "food": 1}
+	$capacity { "wood": 50, "stone": 50, "food": 50 }
 	$built {}
 	$tick-increment {}
-	$balance {}
+	$balance { "workers": 2, "food": 10 }
 
 	inc-balance { __ | each block "{_value | add $balance.{_key} | >$balance.{_key}}" }
 	dec-balance { __ | each block "{_value | subtract value _value from $balance.{_key} | >$balance.{_key}}" }
