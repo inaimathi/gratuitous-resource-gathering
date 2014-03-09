@@ -14,9 +14,11 @@
 	    (:ul
 	     (:li "Balance: " (:span :id "balance-display"))
 	     (:li "Skills: " (:span :id "skills-display"))
-	     (:li "Income: " (:span :id "income-display")))
+	     (:li "Income: " (:span :id "income-display"))
+	     (:li "Built: " (:span :id "building-display")))
 	    (:button :class "building" :data-value "Lumber Yard" "Lumber Yard")
 	    (:button :class "building" :data-value "Quarry" "Quarry")
-	    (:button :class "building" :data-value "Farm" "Farm")))))
+	    (:button :class "building" :data-value "Farm" "Farm")
+	    (:button :class "building" :data-value "Mine" "Mine")))))
 
 (defparameter *server* (bt:make-thread (lambda () (start 4242))))
