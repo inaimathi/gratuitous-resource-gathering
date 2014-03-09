@@ -21,6 +21,7 @@ Its aim is to be a very simple resource gathering/civilization building game. We
 - There are two things: **resources** and **technologies**.
 - A **resource** is a thing you can gather. Each resource has
 	- A name
+	- A requirement (What technologies you need before you can gather any)
 	- A balance (How much of it you have)
 	- A capacity (The maximum balance you can have)
 	- A skill (How much of it you gather per click)
