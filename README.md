@@ -18,7 +18,7 @@ Its aim is to be a very simple resource gathering/civilization building game. We
 
 ### Notes/TODO
 ###### Notes
-- There are two things: **resources** and **upgrades**.
+- There are two things: **resources** and **technologies**.
 - A **resource** is a thing you can gather. Each resource has
 	- A name
 	- A balance (How much of it you have)
@@ -26,11 +26,11 @@ Its aim is to be a very simple resource gathering/civilization building game. We
 	- A skill (How much of it you gather per click)
 	- An income (How much of it you gather per tick)
 	- An upkeep (How much of another resource it consumes per tick. If you don't have enough of the required resource, you instead lose one of the upkept resource)
-- An **upgrade** is a thing you can build. Each upgrade has
+- A **technology** is a thing you can build. Each technology has
 	- A name
 	- A cost (How many and what types of resources you need to buy it)
-	- A prerequisite (What upgrades you need before you can build this one)
-	- An upgrade (What buying this upgrade gets you)
+	- A prerequisite (What technologies you need before you can build this one)
+	- An upgrade (What buying this technology gets you)
 
 - You start each game as a primitive human tribe gathering food and clay. Using these resources, you can expand your gathering skill, capacity, population and technologies to work up into a post-industrial civilization.
 
