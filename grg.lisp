@@ -19,11 +19,4 @@
 	    (:button :class "building" :data-value "Quarry" "Quarry")
 	    (:button :class "building" :data-value "Farm" "Farm")))))
 
-(define-json-handler (echo) (value)
-  (publish! :the-game  value)
-  :ok)
-
-(define-stream-handler (yodel) ()
-  (subscribe! :the-game sock))
-
 (defparameter *server* (bt:make-thread (lambda () (start 4242))))
