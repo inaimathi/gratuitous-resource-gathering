@@ -1,3 +1,11 @@
+D.import_port_flavour('on-startup', {
+    dir: 'in',
+    outside_add: function () {
+	var self = this;
+	var delay = setTimeout(function () { self.enter("ding!")}, 50);
+    }
+})
+
 D.import_port_flavour('every', {
     dir: 'in',
     outside_add: function () {
