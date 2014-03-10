@@ -1,0 +1,3 @@
+.tech-box { border: 1px solid #000; float: left; font-size: small; padding: 5px; margin: 5px; }
+.tech-box ul { list-style-type: none; margin: 0px 0px 10px 0px; padding: 0px; }
+.tech-box button { width: 100%; }
