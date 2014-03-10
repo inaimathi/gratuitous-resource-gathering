@@ -31,7 +31,7 @@ outer
 
 	upgrade { __ | each block "{_value | add $tick-increment.{_key} | >$tick-increment.{_key}}" }
 
-	have-prereqs
+	can-build
 		{ __ | >tch | $techs.{_tch}.requires | >reqs | $built | list keys | (__ _reqs) | list intersect | eq _reqs | then _tch }
 	can-afford
 		{ __ | >tch | $techs.{_tch}.cost | map block "{$balance.{_key} | less than _value | not}" | and | then _tch }
@@ -46,9 +46,9 @@ outer
 	@resource-click -> can-gather -> { __ | >res | $click-increment.{_res} | add 1 | * (_res __) } -> inc-balance -> show-balance
 
 	@tech-click dom-on-click .technology
-	@tech-click -> have-prereqs -> can-afford -> { $techs.{__}.cost } -> dec-balance -> show-balance
-								 								 can-afford -> { $built.{__} | add 1 | >$built.{__} } -> show-built
-																 can-afford -> { $techs.{__}.upgrade } -> upgrade -> show-income
+	@tech-click -> can-build -> can-afford -> { $techs.{__}.cost } -> dec-balance -> show-balance
+								 					 		can-afford -> { $built.{__} | add 1 | >$built.{__} } -> show-built
+															can-afford -> { $techs.{__}.upgrade } -> upgrade -> show-income
 
 	// DOM rendering
 	resource
