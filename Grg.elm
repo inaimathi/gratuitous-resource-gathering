@@ -1,6 +1,7 @@
 module Grg where
 
 import Graphics.Input as In
+import Graphics.Collage as Col
 import Dict as D
 import Maybe as M
 import Set as S
@@ -113,13 +114,23 @@ clock = sampleOn (every second) <| constant Tick
 
 events = merges [techGroup.events, resourceGroup.events, clock]
 
-techButtons g = map (\t -> techGroup.button (TechClick t.name) t.name) <| filter (meetsPrereqs g . .reqs) technologies
-resourceButtons g = map (\r -> resourceGroup.button (ResClick r.name) r.name) <| filter (meetsPrereqs g . .reqs) resources
-
 -- The Game
 game = foldp (\val memo -> applyEvent memo val) defaultGame events
 
 -- The View
+techTemplate t btn = let s = spacer 10 10
+                         spaced elem = beside s elem
+                         (w, h) = (150, 170)
+                     in beside s <| layers [ collage w h [ filled gray <| Col.rect w h ]
+                                           , flow down [ height 30 <| width w <| btn 
+                                                       , plainText "Cost:" `above` (spaced (flow down <| map asText t.cost))
+                                                       , plainText "Upgrade:" `above` (spaced (flow down <| map asText t.upgrade))]]
+
+techButtons g = let relevants = filter (meetsPrereqs g . .reqs) technologies
+                    btn t = techTemplate t (techGroup.button (TechClick t.name) t.name)
+                in map btn relevants
+resourceButtons g = map (\r -> resourceGroup.button (ResClick r.name) r.name) <| filter (meetsPrereqs g . .reqs) resources
+
 showGame : GameState -> Element
 showGame g = flow down [ flow right <| resourceButtons g
                        , asText <| D.toList g.balance
