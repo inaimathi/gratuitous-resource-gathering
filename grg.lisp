@@ -5,6 +5,7 @@
 (define-closing-handler (root) ()
   (with-html-output-to-string (*standard-output* nil :prologue t :indent t)
     (:html (:head (:title "GRG - Gratuitous Resource Gathering")
+		  (:link :rel "stylesheet" :href "/static/grg.css" :type "text/css" :media "screen")
 		  (:script :type "text/javascript" :src "/static/daimio_composite.js")
 		  (:script :type "text/javascript" :src "/static/daimio_start.js"))
 	   (:body 
@@ -14,7 +15,11 @@
 		     "{end block}")
 	    (:script :data-daimio-template "technology" :language "daimio"
 		     "{begin block | merge data __in}"
-		     (:button :class "technology" :data-value "{_name}" "{_name}")
+		     (:div :class "tech-box"
+			   (:ul (:li "Cost: {_cost}")
+				(:li "Requires: {_requires}")
+				(:li "Upgrade: {_upgrade}"))
+			   (:button :class "technology" :data-value "{_name}" "{_name}"))
 		     "{end block}")
 	    (:div :id "resources")
 	    (:ul

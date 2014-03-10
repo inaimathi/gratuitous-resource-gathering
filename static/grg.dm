@@ -1,4 +1,5 @@
 outer
+	////////////
 	// The model
 	$techs { "Clay Pit"    : { "cost": { "wood": 30 }, "upgrade": { "clay": 1 }, "requires": [] }
 				 , "Pottery"     : { "cost": { "wood": 25, "clay": 25 }, "upgrade": {}, "requires": ["Clay Pit"]}
@@ -15,21 +16,28 @@ outer
 						 , "trade": ["Shipyard"] , "credit" : ["Banking"]
 						 , "knowledge": ["Philosophy"] }
 
-	$click-increment { }
+	$click-increment {}
 	$capacity { "wood": 50, "stone": 100, "food": 50, "salt": 50, "clay": 50 }
 	$built {}
 	$tick-increment {}
 	$balance { "workers": 2, "food": 10 }
 
+	/////////////////
 	// initialization
 	@init on-startup	
+	
+	@init -> { $tech-list | map block "{}"}
 	@init -> resource-html -> technology-html -> show-all
 
+  /////////////////
 	// Utility spaces
-	inc-balance { __ | each block "{_value | add $balance.{_key} | min $capacity.{_key} | >$balance.{_key}}" }
-	dec-balance { __ | each block "{_value | subtract value _value from $balance.{_key} | >$balance.{_key}}" }
+	inc-balance 
+		{ __ | each block "{_value | add $balance.{_key} | min $capacity.{_key} | >$balance.{_key}}" }
+	dec-balance
+		{ __ | each block "{_value | subtract value _value from $balance.{_key} | >$balance.{_key}}" }
 
-	upgrade { __ | each block "{_value | add $tick-increment.{_key} | >$tick-increment.{_key}}" }
+	upgrade 
+		{ __ | each block "{_value | add $tick-increment.{_key} | >$tick-increment.{_key}}" }
 
 	can-build
 		{ __ | >tch | $techs.{_tch}.requires | >reqs | $built | list keys | (__ _reqs) | list intersect | eq _reqs | then _tch }
@@ -38,6 +46,7 @@ outer
 	can-gather
 		{ __ | >res | $resources.{_res} | >reqs | $built | list keys | (__ _reqs) | list intersect | eq _reqs | then _res }
 
+	///////////////////
 	// User interaction
 	@timer every 500
 	@timer -> {__ | $tick-increment } -> inc-balance -> show-balance
@@ -50,6 +59,7 @@ outer
 								 					 		can-afford -> { $built.{__} | add 1 | >$built.{__} } -> show-built
 															can-afford -> { $techs.{__}.upgrade } -> upgrade -> show-income
 
+	////////////////
 	// DOM rendering
 	resource
 	@resource-html dom-set-html resources
@@ -59,7 +69,7 @@ outer
 	technology
 	@technology-html dom-set-html technologies
 	technology-html {__}
-	technology-html -> { $techs | map block "{* (:name _key)}" } -> technology -> @technology-html
+	technology-html -> { $techs | map block "{ __ | _value | list poke path (:name) value _key }" } -> technology -> @technology-html
 
 	show-all {__}
 	show-all -> show-storage -> show-balance -> show-income -> show-built -> show-skills
