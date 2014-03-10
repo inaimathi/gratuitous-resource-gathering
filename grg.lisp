@@ -19,6 +19,7 @@
 	    (:div :id "resources")
 	    (:ul
 	     (:li "Balance: " (:span :id "balance-display"))
+	     (:li "Storage: " (:span :id "storage-display"))
 	     (:li "Skills: " (:span :id "skills-display"))
 	     (:li "Income: " (:span :id "income-display"))
 	     (:li "Built: " (:span :id "tech-display")))
