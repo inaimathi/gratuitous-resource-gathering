@@ -24,7 +24,7 @@ outer
 
 	/////////////////
 	// initialization
-	@init on-startup	
+	@init on-startup
 	
 	@init -> { $tech-list | map block "{}"}
 	@init -> resource-html -> technology-html -> show-all

@@ -110,6 +110,7 @@ applyEvent g ev = case ev of
 data Event = TechClick String | ResClick String | Tick
 techGroup = In.buttons <| TechClick ""
 resourceGroup = In.buttons <| ResClick ""
+
 clock = sampleOn (every second) <| constant Tick
 
 events = merges [techGroup.events, resourceGroup.events, clock]
@@ -118,18 +119,26 @@ events = merges [techGroup.events, resourceGroup.events, clock]
 game = foldp (\val memo -> applyEvent memo val) defaultGame events
 
 -- The View
-techTemplate t btn = let s = spacer 10 10
-                         spaced elem = beside s elem
-                         (w, h) = (150, 170)
-                     in beside s <| layers [ collage w h [ filled gray <| Col.rect w h ]
-                                           , flow down [ height 30 <| width w <| btn 
-                                                       , plainText "Cost:" `above` (spaced (flow down <| map asText t.cost))
-                                                       , plainText "Upgrade:" `above` (spaced (flow down <| map asText t.upgrade))]]
+spc = spacer 10 10
+lspaced elem = beside spc elem
+rspaced elem = beside elem spc
+
+techTemplate t btn = let (w, h) = (150, 180)
+                     in rspaced <| layers [ collage w h [ filled gray <| Col.rect w h ]
+                                          , flow down [ height 30 <| width w <| btn, spc
+                                                      , beside spc <| (flow down [ plainText "Cost:" `above` (lspaced (flow down <| map asText t.cost))
+                                                                                 , plainText "Upgrade:" `above` (lspaced (flow down <| map asText t.upgrade))])]]
+
+resourceTemplate r btn = let (w, h) = (90, 55)
+                         in rspaced <| layers [ collage w h [ filled blue <| Col.rect w h ]
+                                              , below (asText "A Resource") . height 30 . width w <| btn ]
 
 techButtons g = let relevants = filter (meetsPrereqs g . .reqs) technologies
                     btn t = techTemplate t (techGroup.button (TechClick t.name) t.name)
                 in map btn relevants
-resourceButtons g = map (\r -> resourceGroup.button (ResClick r.name) r.name) <| filter (meetsPrereqs g . .reqs) resources
+resourceButtons g = let relevants = filter (meetsPrereqs g . .reqs) resources 
+                        btn r = resourceTemplate r (resourceGroup.button (ResClick r.name) r.name)
+                    in map btn relevants
 
 showGame : GameState -> Element
 showGame g = flow down [ flow right <| resourceButtons g
