@@ -37,12 +37,7 @@ Its aim is to be a very simple resource gathering/civilization building game. We
 
 
 ###### TODO
-- Implement non-building upgrades
 - Implement one-time upgrades
-- Implement abstract resources
-- Implement workers (re-think basic buildings to make this make some sense? Workers should consume some amount of resources, but also let you do some automated gathering. Make them re-assignable to different resources)
+- Implement resources that need upkeep
 - Upgrades that decrese tick time? (Flavor wise: make your civ more efficient. Ex: roads, trade-routes, transportation tech)
-- Buildings should only appear as prereqs are met
-- Explicit research resource?
-- De-comission resources as we go?
 - What does end-game look like?
