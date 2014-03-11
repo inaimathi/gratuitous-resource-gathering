@@ -2,17 +2,18 @@ module Grg where
 
 import Graphics.Input as In
 import Graphics.Collage as Col
+import open Maybe
 import Dict as D
 
 -- Basic utility
 updateWithDefault : a -> comparable -> (a -> a) -> D.Dict comparable a -> D.Dict comparable a
 updateWithDefault def name fn dict = D.insert name (fn <| D.findWithDefault def name dict) dict
 
-incDict d table = let inc d (name, amt) = updateWithDefault 0 name ((+) amt) d
-                  in foldr (flip inc) d table
+incDict d table = let inc (name, amt) d = updateWithDefault 0 name ((+) amt) d
+                  in foldr inc d table
 
-decDict d table = let dec d (name, amt) = updateWithDefault 0 name (\n -> n - amt) d
-                  in foldr (flip dec) d table
+decDict d table = let dec (name, amt) d = updateWithDefault 0 name (\n -> n - amt) d
+                  in foldr dec d table
 
 find0 key dict = D.findWithDefault 0 key dict
 
@@ -21,7 +22,7 @@ data Reps = Count Int | One | Inf
 type Price = [(String, Int)]
 data Upgrade = Income String Int | Capacity String Int
 data Prerequisite = Tech String | Res String Int
-type Resource = { name:String, reqs:[Prerequisite], upkeep:[Price] }
+type Resource = { name:String, reqs:[Prerequisite], upkeep:[(String, Float)] }
 type Technology = { name:String, cost:Price, upgrade:[Upgrade], reqs:[Prerequisite], repeatable:Reps }
 
 techTable = D.fromList <| map (\t -> (t.name, t)) technologies
@@ -42,12 +43,12 @@ resTable = D.fromList <| map (\r -> (r.name, r)) resources
 resources = let base name = {name=name, reqs=[], upkeep=[]}
                 reqd (name, reqs) = {name=name, reqs=reqs, upkeep=[]}
                 uppd (name, reqs, upkeep) = {name=name, reqs=reqs, upkeep=upkeep}
-            in concat [ map base ["Wood", "Stone", "Food", "Clay"]
-                      , map reqd [ ("Workers", [Tech "Dwelling"])
-                                 , ("Ore", [Tech "Mine"]), ("Salt", [Tech "Mine"]), ("Gold", [Tech "Gold Mine"])
+            in concat [ map base ["Wood", "Stone", "Clay"]
+                      , map reqd [ ("Ore", [Tech "Mine"]), ("Salt", [Tech "Mine"]), ("Gold", [Tech "Gold Mine"])
                                  , ("Money", [Tech "Printing Press", Tech "Mint"]), ("Reputation", [Tech "Printing Press"])
                                  , ("Trade", [Tech "Shipyard"]), ("Credit", [Tech "Banking"]), ("Knowledge", [Tech "Philosophy", Tech "Speech"])]
-                      , map uppd []]
+                      , map uppd [ ("Food", [], [("Salt", 1/6)])
+                                 , ("Workers", [Tech "Dwelling"], [("Food", 1)])]]
 
 type GameState = { skill: D.Dict String Int
                  , income: D.Dict String Int
@@ -58,12 +59,10 @@ type GameState = { skill: D.Dict String Int
 
 defaultGame : GameState
 defaultGame = 
-    { skill = D.empty
-    , income = D.empty
-    , workers = D.empty
-    , capacity = D.fromList [("Wood", 50), ("Stone", 100), ("Food", 50), ("Salt", 50), ("Ore", 50), ("Gold", 50), ("Clay", 50)]
-    , built = D.empty
-    , balance = D.fromList [("Workers", 2), ("Food", 10)]}
+    applyUpkeep { skill = D.empty, income = D.empty, built = D.empty
+                , workers = D.fromList [("Food", 3)], balance = D.fromList [("Food", 20)]
+                , capacity = D.fromList [("Wood", 50), ("Stone", 100), ("Food", 50), ("Salt", 50), ("Ore", 50), ("Gold", 50), ("Clay", 50)]
+                }
 
 resCap : GameState -> String -> Int
 resCap g res = find0 res g.capacity
@@ -97,9 +96,32 @@ haventMaxed g tech = let built = techBuilt g tech.name
 canAfford : GameState -> Price -> Bool
 canAfford g cost = and <| map (\(res, amt) -> amt <= find0 res g.balance) cost
 
+decResource : GameState -> (String, Int) -> GameState
+decResource g (name, delta) = 
+    case name of
+      "Workers" -> if canAfford g [(name, delta)] 
+                   then { g | balance <- decDict g.balance [(name, delta)] }
+                   else decResource { g | balance <- incDict g.balance [("Workers", sum <| D.values g.workers)]
+                                        , workers <- D.empty } (name, delta)
+      _ -> { g | balance <- decDict g.balance [(name, delta)] }
+
+upkeepOf : GameState -> (String, Int) -> Price
+upkeepOf g (name, _) = let raw = maybe [] .upkeep <| D.lookup name resTable
+                           balance = resTotal g name
+                           price = map (\(name, u) -> (name, round <| u * (toFloat <| balance))) raw
+                           penalty = case price of
+                                       [] -> []
+                                       lst -> [(name, 1)]
+                       in if canAfford g price then price else penalty
+
+applyUpkeep : GameState -> GameState
+applyUpkeep g = let upk res g = foldr (flip decResource) g <| upkeepOf g res
+                in foldr upk g <| D.toList g.balance
+
 tick : GameState -> GameState
-tick g = let new = incBalance g <| D.toList g.income
-         in incBalance new <| D.toList g.workers
+tick g = let paidOff = applyUpkeep g
+             new = incBalance paidOff <| D.toList paidOff.income
+         in incBalance new <| D.toList paidOff.workers
 
 gather : GameState -> String -> GameState
 gather g res = let increment = sum [1, find0 res g.skill, find0 res g.workers]
@@ -187,6 +209,7 @@ showGame : GameState -> Element
 showGame g = flow down [ flow right <| resourceButtons g
                        , asText <| D.toList g.balance
                        , asText <| D.toList g.workers
+                       , asText <| map (upkeepOf g) <| D.toList g.balance
                        , asText <| D.toList g.income
                        , asText <| D.toList g.capacity
                        , asText <| D.toList g.built
