@@ -29,14 +29,16 @@ techTable = D.fromList <| map (\t -> (t.name, t)) technologies
 technologies = let tech (name, cost, upgrade, reqs, reps) = 
                        {name=name, cost=cost, upgrade=upgrade, reqs=reqs, repeatable=reps}
                in map tech
-                      [ ("Clay Pit", [("Wood", 30)], [Income "Clay" 1], [], Inf)
-                      , ("Lumber Yard", [("Wood", 50), ("Stone", 10)], [Income "Wood" 1, Capacity "Wood" 10], [], Inf)
-                      , ("Farm", [("Wood", 30), ("Stone", 30)], [Income "Food" 1], [], Inf)
+                      [ ("Clay Pit", [("Wood", 30)], [Income "Clay" 3], [], Inf)
+                      , ("Lumber Yard", [("Wood", 50), ("Stone", 10)], [Income "Wood" 3, Capacity "Wood" 10], [], Inf)
+                      , ("Farm", [("Wood", 30), ("Stone", 30)], [Income "Food" 3, Capacity "Workers" 5], [], Inf)
+                      , ("Granary", [("Wood", 40), ("Stone", 30)], [Capacity "Food" 15], [Tech "Farm"], Inf)
+                      , ("Dwelling", [("Wood", 20), ("Stone", 20)], [Capacity "Workers" 2], [Tech "Farm"], Inf)
                       , ("Pottery", [("Wood", 25), ("Clay", 25)], [Capacity "Food" 10], [Tech "Clay Pit"], Inf)
-                      , ("Quarry", [("Wood", 20), ("Stone", 50)], [Income "Stone" 1], [Tech "Lumber Yard"], Inf)
+                      , ("Quarry", [("Wood", 20), ("Stone", 50)], [Income "Stone" 3], [Tech "Lumber Yard"], Inf)
                       , ("Mine", [("Wood", 50), ("Stone", 20), ("Food", 30)], [Income "Ore" 1, Income "Salt" 1], [Tech "Lumber Yard", Tech "Quarry", Tech "Farm"], Inf)
                       , ("Gold Mine", [("Wood", 50), ("Stone", 20), ("Food", 30)], [Income "Gold" 1], [Tech "Mine"], Inf)
-                      , ("Blacksmith", [("Wood", 60), ("Stone", 50)], [], [Tech "Mine"], Inf)
+                      , ("Blacksmith", [("Wood", 60), ("Stone", 50)], [Income "Iron" 1], [Tech "Mine"], Inf) -- Upgrade here
                       , ("Language", [], [Capacity "Workers" 100], [Res "Workers" 10], One)]
 
 resTable = D.fromList <| map (\r -> (r.name, r)) resources
@@ -60,8 +62,8 @@ type GameState = { skill: D.Dict String Int
 defaultGame : GameState
 defaultGame = 
     applyUpkeep { skill = D.empty, income = D.empty, built = D.empty
-                , workers = D.fromList [("Food", 3)], balance = D.fromList [("Food", 20)]
-                , capacity = D.fromList [("Wood", 50), ("Stone", 100), ("Food", 50), ("Salt", 50), ("Ore", 50), ("Gold", 50), ("Clay", 50)]
+                , workers = D.fromList [("Food", 3)], balance = D.fromList [("Food", 24), ("Workers", 0)]
+                , capacity = D.fromList [("Workers", 5), ("Wood", 50), ("Stone", 100), ("Food", 50), ("Salt", 50), ("Ore", 50), ("Gold", 50), ("Clay", 50)]
                 }
 
 resCap : GameState -> String -> Int
@@ -83,7 +85,7 @@ incBalance g amounts = let inc (res, amt) g = { g | balance <- updateWithDefault
 meetsPrereqs : GameState -> [Prerequisite] -> Bool
 meetsPrereqs g reqs = let meets prereq = case prereq of
                                            Tech name -> (0 < techBuilt g name)
-                                           Res name amt -> amt < find0 name g.balance
+                                           Res name amt -> amt < resTotal g name
                       in and <| map meets reqs
 
 haventMaxed : GameState -> Technology -> Bool
@@ -198,7 +200,7 @@ resourceTemplate r assigned =
                                          , spc, asText assigned, spc
                                          , height 25 . width (round <| w / 3) <| assignGroup.button (Assign r.name) "+"]]
 
-techButtons g = let relevants = filter (meetsPrereqs g . .reqs) technologies
+techButtons g = let relevants = filter (\t -> and [meetsPrereqs g t.reqs, haventMaxed g t]) technologies
                 in map techTemplate relevants
 
 resourceButtons g = let relevants = filter (meetsPrereqs g . .reqs) resources 
@@ -211,7 +213,6 @@ showGame g = flow down [ flow right <| resourceButtons g
                        , asText <| D.toList g.workers
                        , asText <| map (upkeepOf g) <| D.toList g.balance
                        , asText <| D.toList g.income
-                       , asText <| D.toList g.capacity
                        , asText <| D.toList g.built
                        , flow right <| techButtons g ]
 
