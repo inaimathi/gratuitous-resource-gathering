@@ -4,7 +4,7 @@ import Dict as D
 
 data Limit = Count Int | DependsOn (GameState -> Int) | One | Infinity
 type Price = [(String, Int)]
-data Upgrade = Income String Int | Capacity String Int
+data Upgrade = Income String Int | Capacity String Int | UpgradeFn (GameState -> GameState)
 data Prerequisite = Tech String | Res String Int | GameFn (GameState -> Bool)
 type Resource = { name:String, reqs:[Prerequisite], upkeep:[(String, Float)] }
 type Technology = { name:String, cost:Price, upgrade:[Upgrade], reqs:[Prerequisite], limit:Limit }

@@ -91,6 +91,7 @@ applyUpgrade : GameState -> Upgrade -> GameState
 applyUpgrade g up = case up of
                       Income res amt -> {g | income <- incDict g.income [(res, amt)]}
                       Capacity res amt -> {g | capacity <- incDict g.capacity [(res, amt)]}
+                      UpgradeFn fn -> fn g
 
 
 -- Main game event handlers
