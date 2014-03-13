@@ -6,15 +6,33 @@ import open Maybe
 import open Grg.Data
 import open Grg.Util
 
+-- Comparing limits (which are weird and capricious things in this game)
+compareLL : GameState -> Limit -> Limit -> Order
+compareLL g a b = 
+    let toNum lim = case lim of
+                      One -> 1
+                      Count l -> l
+                      DependsOn fn -> fn g
+    in case (a, b) of
+         (Infinity, Infinity) -> EQ
+         (Infinity, _) -> GT
+         (_, Infinity) -> LT
+         _ -> (toNum a) `compare` (toNum b)
+
+compareIL : GameState -> Int -> Limit -> Order
+compareIL g a b = compareLL g (Count a) b
+
+-- Starting point for the game
 defaultGame : GameState
 defaultGame = 
     applyUpkeep { skill = D.empty, income = D.empty, built = D.empty
-                , workers = D.fromList [("Food", 3)], balance = D.fromList [("Food", 24), ("Workers", 0)]
-                , capacity = D.fromList [("Workers", 5), ("Wood", 50), ("Stone", 100), ("Food", 50), ("Salt", 50), ("Ore", 50), ("Gold", 50), ("Clay", 50)]
+                , workers = D.fromList [("Food", 3)], balance = D.fromList [("Food", 9), ("Workers", 0)]
+                , capacity = D.fromList [("Workers", 10), ("Food", 40)]
                 }
 
+-- Specific resource/technology queries
 resCap : GameState -> String -> Int
-resCap g res = find0 res g.capacity
+resCap g res = maximum [ find0 res g.capacity, find0 "Workers" g.balance ] -- Idle workers can mind some resources
 
 resTotal : GameState -> String -> Int
 resTotal g res = let balance = find0 res g.balance
@@ -22,28 +40,36 @@ resTotal g res = let balance = find0 res g.balance
                       "Workers" -> balance + (sum <| D.values g.workers)
                       _         -> balance
 
+upkeepOf : GameState -> String -> Price
+upkeepOf g name = let raw = maybe [] .upkeep <| D.lookup name resTable
+                      balance = resTotal g name
+                      price = map (\(name, u) -> (name, round <| u * (toFloat <| balance))) raw
+                      penalty = case price of
+                                  [] -> []
+                                  lst -> [(name, 1)]
+                  in if canAfford g price then price else penalty
+
 techBuilt : GameState -> String -> Int
 techBuilt g tech = find0 tech g.built
-
-incBalance : GameState -> [(String, Int)] -> GameState
-incBalance g amounts = let inc (res, amt) g = { g | balance <- updateWithDefault 0 res (\n -> min (resCap g res) (n + amt)) g.balance }
-                       in foldr inc g amounts
 
 meetsPrereqs : GameState -> [Prerequisite] -> Bool
 meetsPrereqs g reqs = let meets prereq = case prereq of
                                            Tech name -> (0 < techBuilt g name)
-                                           Res name amt -> amt < resTotal g name
+                                           Res name amt -> amt <= resTotal g name
+                                           GameFn fn -> fn g
                       in and <| map meets reqs
 
 haventMaxed : GameState -> Technology -> Bool
 haventMaxed g tech = let built = techBuilt g tech.name
-                     in case tech.repeatable of
-                          Inf -> True
-                          One -> 1 > built
-                          Count num -> num > built
+                     in gtOrEq <| compareIL g built tech.limit
 
 canAfford : GameState -> Price -> Bool
 canAfford g cost = and <| map (\(res, amt) -> amt <= find0 res g.balance) cost
+
+-- Low-level game state modification
+incBalance : GameState -> [(String, Int)] -> GameState
+incBalance g amounts = let inc (res, amt) g = { g | balance <- updateWithDefault 0 res (\n -> min (resCap g res) (n + amt)) g.balance }
+                       in foldr inc g amounts
 
 decResource : GameState -> (String, Int) -> GameState
 decResource g (name, delta) = 
@@ -54,19 +80,20 @@ decResource g (name, delta) =
                                         , workers <- D.empty } (name, delta)
       _ -> { g | balance <- decDict g.balance [(name, delta)] }
 
-upkeepOf : GameState -> (String, Int) -> Price
-upkeepOf g (name, _) = let raw = maybe [] .upkeep <| D.lookup name resTable
-                           balance = resTotal g name
-                           price = map (\(name, u) -> (name, round <| u * (toFloat <| balance))) raw
-                           penalty = case price of
-                                       [] -> []
-                                       lst -> [(name, 1)]
-                       in if canAfford g price then price else penalty
-
 applyUpkeep : GameState -> GameState
-applyUpkeep g = let upk res g = foldr (flip decResource) g <| upkeepOf g res
+applyUpkeep g = let upk res g = foldr (flip decResource) g <| upkeepOf g <| fst res
                 in foldr upk g <| D.toList g.balance
 
+applyUpgrades : GameState -> [Upgrade] -> GameState
+applyUpgrades g ups = foldr (flip applyUpgrade) g ups
+
+applyUpgrade : GameState -> Upgrade -> GameState
+applyUpgrade g up = case up of
+                      Income res amt -> {g | income <- incDict g.income [(res, amt)]}
+                      Capacity res amt -> {g | capacity <- incDict g.capacity [(res, amt)]}
+
+
+-- Main game event handlers
 tick : GameState -> GameState
 tick g = let paidOff = applyUpkeep g
              new = incBalance paidOff <| D.toList paidOff.income
@@ -97,14 +124,6 @@ free g name = case 0 < find0 name g.workers of
                 True  -> { g | workers <- decDict g.workers [(name, 1)]
                              , balance <- incDict g.balance [("Workers", 1)] }
                 False -> g
-
-applyUpgrades : GameState -> [Upgrade] -> GameState
-applyUpgrades g ups = foldr (flip applyUpgrade) g ups
-
-applyUpgrade : GameState -> Upgrade -> GameState
-applyUpgrade g up = case up of
-                      Income res amt -> {g | income <- incDict g.income [(res, amt)]}
-                      Capacity res amt -> {g | capacity <- incDict g.capacity [(res, amt)]}
 
 applyEvent : GameState -> Event -> GameState
 applyEvent g ev = case ev of

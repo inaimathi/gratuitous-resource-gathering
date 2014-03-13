@@ -51,7 +51,6 @@ showGame : GameState -> Element
 showGame g = flow down [ flow right <| resourceButtons g
                        , asText <| D.toList g.balance
                        , asText <| D.toList g.workers
-                       , asText <| map (upkeepOf g) <| D.toList g.balance
                        , asText <| D.toList g.income
                        , asText <| D.toList g.built
                        , flow right <| techButtons g ]
