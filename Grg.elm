@@ -56,15 +56,3 @@ showGame g = flow down [ flow right <| resourceButtons g
                        , flow right <| techButtons g ]
 
 main = lift showGame game
-
--- -- Basic Logging
--- printEvent ev = case ev of
---                   TechClick n -> "UPGRADE " ++ n
---                   ResClick n -> "GATHERED " ++ n
---                   Assign n -> "ASSIGNING TO " ++ n
---                   Free n -> "FREEING FROM " ++ n
---                   Tick -> "TICK"
---                   _ -> "The fuck? " ++ (show ev)
-
--- port log : Signal String
--- port log = lift printEvent events

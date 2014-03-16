@@ -39,8 +39,12 @@ outer
 	upgrade 
 		{ __ | each block "{_value | add $tick-increment.{_key} | >$tick-increment.{_key}}" }
 
+  // @init -> { "{_value | add $tick-increment.{_key} | >$tick-increment.{_key}}" | >$can-build }
+	// upgrade
+ 	//   { __ | each block $can-build }
+
 	can-build
-		{ __ | >tch | $techs.{_tch}.requires | >reqs | $built | list keys | (__ _reqs) | list intersect | eq _reqs | then _tch }
+		{ __ | >tch | $techs.{_tch}.requires | >reqs | $built | list keys | list intersect also _reqs | eq _reqs | then _tch }
 	can-afford
 		{ __ | >tch | $techs.{_tch}.cost | map block "{$balance.{_key} | less than _value | not}" | and | then _tch }
 	can-gather

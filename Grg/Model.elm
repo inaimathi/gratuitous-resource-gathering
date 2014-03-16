@@ -6,33 +6,25 @@ import open Maybe
 import open Grg.Data
 import open Grg.Util
 
--- Comparing limits (which are weird and capricious things in this game)
-compareLL : GameState -> Limit -> Limit -> Order
-compareLL g a b = 
-    let toNum lim = case lim of
-                      One -> 1
-                      Count l -> l
-                      DependsOn fn -> fn g
-    in case (a, b) of
-         (Infinity, Infinity) -> EQ
-         (Infinity, _) -> GT
-         (_, Infinity) -> LT
-         _ -> (toNum a) `compare` (toNum b)
-
-compareIL : GameState -> Int -> Limit -> Order
-compareIL g a b = compareLL g (Count a) b
-
--- Starting point for the game
 defaultGame : GameState
 defaultGame = 
     applyUpkeep { skill = D.empty, income = D.empty, built = D.empty
-                , workers = D.fromList [("Food", 3)], balance = D.fromList [("Food", 9), ("Workers", 0)]
-                , capacity = D.fromList [("Workers", 10), ("Food", 40)]
+                , workers = D.fromList [("Food", 3)]
+                , balance = D.fromList [("Food", 9), ("Workers", 0)]
+                , capacity = D.fromList [("Workers", 15), ("Food", 40)]
                 }
+
+-- Comparing limits (which are weird and capricious things in this game)
+collapse : GameState -> GameVal -> Int
+collapse g gv = case gv of
+                  One -> 1
+                  Count num -> num
+                  Infinity -> round <| 1/0 -- thank you, IEEE floating point point recommendations
+                  DependsOn fn -> fn g
 
 -- Specific resource/technology queries
 resCap : GameState -> String -> Int
-resCap g res = maximum [ find0 res g.capacity, find0 "Workers" g.balance ] -- Idle workers can mind some resources
+resCap g res = maximum [ find0 res g.capacity, 5 * (find0 "Workers" g.balance) ] -- Idle workers can mind some resources
 
 resTotal : GameState -> String -> Int
 resTotal g res = let balance = find0 res g.balance
@@ -61,7 +53,8 @@ meetsPrereqs g reqs = let meets prereq = case prereq of
 
 haventMaxed : GameState -> Technology -> Bool
 haventMaxed g tech = let built = techBuilt g tech.name
-                     in gtOrEq <| compareIL g built tech.limit
+                         limit = collapse g tech.limit
+                     in limit > built
 
 canAfford : GameState -> Price -> Bool
 canAfford g cost = and <| map (\(res, amt) -> amt <= find0 res g.balance) cost
