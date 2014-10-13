@@ -37,7 +37,7 @@ technologies = let tech (name, upgrade, reqs) =
                             , ("Writing", [Income "Knowledge" 5, Capacity "Knowledge" 500], [Res "Workers" 200])
                             , ("Bronze Tools", [Income "Food" 5, Capacity "Food" 10], [Tech "Fire", Tech "Bronze Mine"])
                             , ("Salt", [Capacity "Food" 10], [Tech "Bronze Tools"])
-                              
+
                             , ("Sundial", [], [Res "Knowledge" 250, Tech "Stone Tools"])
                             , ("Glass", [], [Res "Knowledge" 250, Tech "Fire"])
                             , ("Optics", [], [Res "Knowledge" 500, Tech "Glass"])
@@ -45,61 +45,62 @@ technologies = let tech (name, upgrade, reqs) =
                             , ("Mathematics", [], [Tech "Philosophy", Res "Knowledge" 500])
                             , ("Construction", [], [Tech "Mathematics", Tech "Bronze Tools"])
                             , ("Iron Tools", [], [Tech "Bronze Tools"])
-                              
+
                             , ("Engineering", [], [Tech "Mathematics", Tech "Construction"])
                             , ("Metal Casting", [], [Tech "Iron Tools"])
                             , ("Education", [Income "Knowledge" 10, Capacity "Knowledge" 500], [Tech "Mathematics", Tech "Philosophy", Res "Knowledge" 750])
                             , ("Machinery", [], [Tech "Engineering"])
                             , ("Physics", [], [Tech "Mathematics"])
                             , ("Steel", [], [Tech "Engineering", Tech "Metal Casting"])
-                              
+
                             , ("Astronomy", [], [Tech "Optics", Tech "Engineering", Tech "Physics"])
                             , ("Acoustics", [], [Tech "Engineering", Tech "Machinery", Tech "Physics"])
                             , ("Printing Press", [Income "Knowledge" 10, Capacity "Knowledge" 500], [Tech "Engineering"])
                             , ("Banking", [], [Tech "Printing Press"])
+
+                            , ("Navigation", [], [Tech "Astronomy", Tech "Sundial"])
+                            , ("Chemistry", [], [Tech "Engineering", Tech "Glass"])
+                            , ("Metallurgy", [], [Tech "Chemistry"])
+                            , ("Scientific Theory", [], [Tech "Education", Tech "Philosophy", Res "Knowledge" 1000])
+                            , ("Fertilizer", [], [Tech "Chemistry"])
+                            , ("Biology", [], [Tech "Scientific Theory"])
+                            , ("Steam Power", [], [Tech "Scientific Theory", Tech "Chemistry"])
                               
-                            -- , ("Navigation", [], [])
-                            -- , ("Chemistry", [], [])
-                            -- , ("Metallurgy", [], [])
-                            -- , ("Scientific Theory", [], [])
-                            -- , ("Fertilizer", [], [])
-                            -- , ("Biology", [], [])
-                            -- , ("Steam Power", [], [])
+                            , ("Electricity", [], [Tech "Physics", Tech "Engineering"])
+                            , ("Railroad", [], [Tech "Steam Power", Tech "Engineering", Tech "Banking", Tech "Metallurgy"])
                               
-                            -- , ("Electricity", [], [])
-                            -- , ("Railroad", [], [])
+                            , ("Refrigiration", [], [Tech "Electricity", Tech "Chemistry", Tech "Machinery"])
+                            , ("Telegraph", [], [Tech "Electricity", Tech "Chemistry"])
+                            , ("Radio", [], [Tech "Electricity"])
+                            , ("Flight", [], [Tech "Navigation", Tech "Physics", Tech "Engineering", Tech "Metallurgy"])
+                            , ("Combustion", [], [Tech "Physics", Tech "Engineering", Tech "Metallurgy", Tech "Chemistry"])
                               
-                            -- , ("Refrigiration", [], [])
-                            -- , ("Telegraph", [], [])
-                            -- , ("Radio", [], [])
-                            -- , ("Flight", [], [])
-                            -- , ("Combustion", [], [])
+                            , ("Penicilin", [], [Tech "Biology", Tech "Chemistry"])
+                            , ("Plastics", [], [Tech "Chemistry"])
+                            , ("Electronics", [], [Tech "Electricity", Tech "Plastics"])
+                            , ("Mass Media", [], [Tech "Radio"])
                               
-                            -- , ("Penicilin", [], [])
-                            -- , ("Plastics", [], [])
-                            -- , ("Electronics", [], [])
-                            -- , ("Mass Media", [], [])
+                            , ("Radar", [], [Tech "Radio", Tech "Flight"])
+                            , ("Atomic Theory", [], [Tech "Electricity"])
+                            , ("Ecology", [], [Tech "Biology", Tech "Scientific Theory"])
                               
-                            -- , ("Radar", [], [])
-                            -- , ("Atomic Theory", [], [])
-                            -- , ("Ecology", [], [])
-                              
-                            -- , ("Digital Computers", [], [])
-                            -- , ("Rocketry", [], [])
-                            -- , ("Lasers", [], [])
-                            -- , ("Nuclear Fission", [], [])
-                            -- , ("Robotics", [], [])
-                            -- , ("Satellites", [], [])
-                              
-                            -- , ("Particle Physics", [], [])
-                            -- , ("Nuclear Fusion", [], [])
-                            -- , ("Nanotechnology", [], [])
-                            , ("P=NP", [], [Tech "Mathematics", Tech "Artificial Intelligence", Res "Knowledge" 25000])
-                            , ("Artificial Intelligence", [], [Tech "Digital Computers"])
+                            , ("Digital Computers", [], [Tech "Plastics", Tech "Electronics", Tech "Mass Media"])
+                            , ("Rocketry", [], [Tech "Flight", Tech "Electronics", Tech "Chemistry"])
+                            , ("Lasers", [], [Tech "Electronics"])
+                            , ("Nuclear Fission", [], [Tech "Atomic Theory"])
+                            , ("Robotics", [], [Tech "Digital Computers"])
+                            , ("Satellites", [], [Tech "Rocketry", Tech "Digital Computers"])
+                            , ("Particle Physics", [], [Tech "Atomic Theory"])
+
+                            , ("Nuclear Fusion", [], [Tech "Particle Physics", Res "Knowledge" 10000])
+                            , ("Nanotechnology", [], [Tech "Digital Computers", Tech "Robotics", Tech "Particle Physics"])
+
+                            , ("P=NP", [], [Tech "Mathematics", Tech "Artificial Intelligence", Res "Knowledge" 30000])
+                            , ("Artificial Intelligence", [], [Tech "Digital Computers", Res "Knowledge" 20000])
                             , ("Mind Uploading", [], [Tech "Nanotechnology", Tech "Digital Computers", Tech "Biology"])
                             , ("The Singularity", [], [Tech "P=NP", Tech "Artificial Intelligence", Tech "Mind Uploading"])
                             ],
-                   
+
                   map struct [ ("Clay Pit", [("Wood", 30)], [Income "Clay" 3], [], Infinity)
                              , ("Lumber Yard", [("Wood", 50), ("Stone", 10)], [Income "Wood" 3, Capacity "Wood" 10], [], Infinity)
                              , ("Farm", [("Wood", 30), ("Stone", 30)], [Income "Food" 3, Capacity "Workers" 5], [], Infinity)
